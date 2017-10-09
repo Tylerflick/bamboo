@@ -8,43 +8,54 @@ import (
 	"strconv"
 )
 
-type bambooService struct {
-	username string
-	password string
-	baseUrl  string
+type BambooService struct {
+	username       string
+	password       string
+	baseUrl        string
+	requestHandler RequestHandler
 }
 
-func (b bambooService) GetBuildResults(max int) Results {
-	endpoint := b.baseUrl + apiUrl + latestResults
-	req := b.createRequest("GET", endpoint)
+func NewBambooService(requestHandler RequestHandler) BambooService {
+	b := BambooService{}
+	if requestHandler == nil {
+		b.requestHandler = b
+	} else {
+		b.requestHandler = requestHandler
+	}
+	return b
+}
+
+func (b BambooService) GetBuildResults(max int) Results {
+	endpoint := b.baseUrl + ApiUrl + LatestResults
+	req := b.requestHandler.CreateRequest("GET", endpoint)
 	if max > 0 {
 		req.URL.Query().Add(maxResultsKey, strconv.Itoa(max))
 	}
-	body := b.processRequeset(req)
+	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Results
 	json.Unmarshal([]byte(body), &jsonData)
 	return jsonData
 }
 
-func (b bambooService) GetProjects() Projects {
-	endpoint := b.baseUrl + apiUrl + project
-	req := b.createRequest("GET", endpoint)
-	body := b.processRequeset(req)
+func (b BambooService) GetProjects() Projects {
+	endpoint := b.baseUrl + ApiUrl + project
+	req := b.requestHandler.CreateRequest("GET", endpoint)
+	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Projects
 	json.Unmarshal([]byte(body), &jsonData)
 	return jsonData
 }
 
-func (b bambooService) GetPlans() Plans {
-	endpoint := b.baseUrl + apiUrl + plan
-	req := b.createRequest("GET", endpoint)
-	body := b.processRequeset(req)
+func (b BambooService) GetPlans() Plans {
+	endpoint := b.baseUrl + ApiUrl + plan
+	req := b.requestHandler.CreateRequest("GET", endpoint)
+	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Plans
 	json.Unmarshal([]byte(body), &jsonData)
 	return jsonData
 }
 
-func (b bambooService) createRequest(requestType string, url string) *http.Request {
+func (b BambooService) CreateRequest(requestType string, url string) *http.Request {
 	req, _ := http.NewRequest(requestType, url, nil)
 	req.SetBasicAuth(b.username, b.password)
 	req.Header.Add("Content-Type", "application/json")
@@ -52,13 +63,13 @@ func (b bambooService) createRequest(requestType string, url string) *http.Reque
 	return req
 }
 
-func (b bambooService) processRequeset(req *http.Request) string {
+func (b BambooService) ProcessRequest(req *http.Request) string {
 	client := http.Client{}
 	results, _ := client.Do(req)
 	return b.getBody(results)
 }
 
-func (b bambooService) getBody(response *http.Response) string {
+func (b BambooService) getBody(response *http.Response) string {
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	// TODO: should this log the error or return it?

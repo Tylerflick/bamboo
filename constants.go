@@ -1,13 +1,13 @@
 package bamboo
 
 const (
-	apiUrl = "/rest/api"
+	ApiUrl = "/rest/api"
 	// API ENDPOINTS
-	latestResults = "/latest/result"
+	LatestResults = "/latest/result"
 	project       = "/projects"
 	plan          = "/plan"
 	buildSerivce  = "/result"
 	chart         = "/chart"
 	// QUERY KEYS
-	maxResultsKey     = "max-result"
+	maxResultsKey = "max-result"
 )
