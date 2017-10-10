@@ -214,6 +214,6 @@ type Plans struct {
 		Size       int     `json:"size"`
 		MaxResult  int     `json:"max-result"`
 		StartIndex int     `json:"start-index"`
-		Plans      []Plans `json:"plan"`
+		Plans      []Plan `json:"plan"`
 	} `json:"plans"`
 }
