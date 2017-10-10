@@ -9,9 +9,9 @@ import (
 )
 
 type BambooService struct {
-	username       string
-	password       string
-	baseUrl        string
+	Username       string
+	Password       string
+	BaseUrl        string
 	requestHandler RequestHandler
 }
 
@@ -26,11 +26,14 @@ func NewBambooService(requestHandler RequestHandler) BambooService {
 }
 
 func (b BambooService) GetBuildResults(max int) Results {
-	endpoint := b.baseUrl + ApiUrl + LatestResults
+	endpoint := b.BaseUrl + ApiUrl + LatestResults
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	if max > 0 {
-		req.URL.Query().Add(maxResultsKey, strconv.Itoa(max))
+		values := req.URL.Query()
+		values.Add(maxResultsKey, strconv.Itoa(max))
+		req.URL.RawQuery = values.Encode()
 	}
+	req.SetBasicAuth(b.Username, b.Password)	
 	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Results
 	json.Unmarshal([]byte(body), &jsonData)
@@ -38,8 +41,9 @@ func (b BambooService) GetBuildResults(max int) Results {
 }
 
 func (b BambooService) GetProjects() Projects {
-	endpoint := b.baseUrl + ApiUrl + project
+	endpoint := b.BaseUrl + ApiUrl + project
 	req := b.requestHandler.CreateRequest("GET", endpoint)
+	req.SetBasicAuth(b.Username, b.Password)	
 	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Projects
 	json.Unmarshal([]byte(body), &jsonData)
@@ -47,8 +51,9 @@ func (b BambooService) GetProjects() Projects {
 }
 
 func (b BambooService) GetPlans() Plans {
-	endpoint := b.baseUrl + ApiUrl + plan
+	endpoint := b.BaseUrl + ApiUrl + plan
 	req := b.requestHandler.CreateRequest("GET", endpoint)
+	req.SetBasicAuth(b.Username, b.Password)	
 	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Plans
 	json.Unmarshal([]byte(body), &jsonData)
@@ -57,7 +62,6 @@ func (b BambooService) GetPlans() Plans {
 
 func (b BambooService) CreateRequest(requestType string, url string) *http.Request {
 	req, _ := http.NewRequest(requestType, url, nil)
-	req.SetBasicAuth(b.username, b.password)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	return req

@@ -50,7 +50,6 @@ func TestGetPlans(t *testing.T) {
 	}
 	b := bamboo.NewBambooService(&requestHandler)
 	plans := b.GetPlans()
-	// if requestHandler.requestUrl != requestHandler.baseUrl + bamboo.
 	if len(plans.Plans.Plans) != 3 {
 		t.Error(
 			"For", plans.Plans.Plans,
@@ -58,8 +57,4 @@ func TestGetPlans(t *testing.T) {
 			"got", len(plans.Plans.Plans),
 		)
 	}
-}
-
-func TestGetProjects(t *testing.T) {
-
 }

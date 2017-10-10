@@ -4,8 +4,8 @@ const (
 	ApiUrl = "/rest/api"
 	// API ENDPOINTS
 	LatestResults = "/latest/result"
-	project       = "/projects"
-	plan          = "/plan"
+	project       = "/latest/projects"
+	plan          = "/latest/plan"
 	buildSerivce  = "/result"
 	chart         = "/chart"
 	// QUERY KEYS
