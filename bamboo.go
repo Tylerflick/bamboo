@@ -15,8 +15,12 @@ type BambooService struct {
 	requestHandler RequestHandler
 }
 
-func NewBambooService(requestHandler RequestHandler) BambooService {
-	b := BambooService{}
+func NewBambooService(userName string, password string, baseUrl string, requestHandler RequestHandler) BambooService {
+	b := BambooService{
+		Username: userName,
+		Password: password,
+		BaseUrl:  baseUrl,
+	}
 	if requestHandler == nil {
 		b.requestHandler = b
 	} else {
@@ -26,14 +30,14 @@ func NewBambooService(requestHandler RequestHandler) BambooService {
 }
 
 func (b BambooService) GetBuildResults(max int) Results {
-	endpoint := b.BaseUrl + ApiUrl + LatestResults
+	endpoint := b.BaseUrl + ApiUrl + LatestResultsEndpoint
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	if max > 0 {
 		values := req.URL.Query()
-		values.Add(maxResultsKey, strconv.Itoa(max))
+		values.Add(MaxResultsKey, strconv.Itoa(max))
 		req.URL.RawQuery = values.Encode()
 	}
-	req.SetBasicAuth(b.Username, b.Password)	
+	req.SetBasicAuth(b.Username, b.Password)
 	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Results
 	json.Unmarshal([]byte(body), &jsonData)
@@ -41,9 +45,9 @@ func (b BambooService) GetBuildResults(max int) Results {
 }
 
 func (b BambooService) GetProjects() Projects {
-	endpoint := b.BaseUrl + ApiUrl + project
+	endpoint := b.BaseUrl + ApiUrl + ProjectEndpoint
 	req := b.requestHandler.CreateRequest("GET", endpoint)
-	req.SetBasicAuth(b.Username, b.Password)	
+	req.SetBasicAuth(b.Username, b.Password)
 	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Projects
 	json.Unmarshal([]byte(body), &jsonData)
@@ -51,9 +55,9 @@ func (b BambooService) GetProjects() Projects {
 }
 
 func (b BambooService) GetPlans() Plans {
-	endpoint := b.BaseUrl + ApiUrl + plan
+	endpoint := b.BaseUrl + ApiUrl + PlanEndpoint
 	req := b.requestHandler.CreateRequest("GET", endpoint)
-	req.SetBasicAuth(b.Username, b.Password)	
+	req.SetBasicAuth(b.Username, b.Password)
 	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Plans
 	json.Unmarshal([]byte(body), &jsonData)

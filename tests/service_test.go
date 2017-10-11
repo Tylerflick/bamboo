@@ -5,10 +5,24 @@ import (
 	"testing"
 )
 
+func TestGetPlansHitsCorrectEndpoint(t *testing.T) {
+	baseUrl := "test.com"
+	requestHandler := MockRequestHandler{}
+	b := bamboo.NewBambooService("username", "password", baseUrl, &requestHandler)
+	b.GetPlans()
+	if requestHandler.RequestUrl != baseUrl + bamboo.ApiUrl + bamboo.PlanEndpoint {
+		t.Error(
+			"For", "requestHandler.RequestUrl",
+			"expected", baseUrl + bamboo.ApiUrl + bamboo.PlanEndpoint,
+			"got", requestHandler.RequestUrl,
+		)
+	}
+}
+
 func TestGetPlans(t *testing.T) {
 	requestHandler := MockRequestHandler{
-		baseUrl: "test.com",
-		responseBody: `{
+		BaseUrl: "test.com",
+		ResponseBody: `{
 			"expand": "plans",
 			"link": {
 				"rel": "self",
@@ -48,11 +62,11 @@ func TestGetPlans(t *testing.T) {
 			}
 		}`,
 	}
-	b := bamboo.NewBambooService(&requestHandler)
+	b := bamboo.NewBambooService("username", "password", "test.com", &requestHandler)
 	plans := b.GetPlans()
 	if len(plans.Plans.Plans) != 3 {
 		t.Error(
-			"For", plans.Plans.Plans,
+			"For", "len(plans.Plans.Plans)",
 			"expected", 3,
 			"got", len(plans.Plans.Plans),
 		)
