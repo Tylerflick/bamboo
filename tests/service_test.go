@@ -10,16 +10,16 @@ func TestGetPlansHitsCorrectEndpoint(t *testing.T) {
 	requestHandler := MockRequestHandler{}
 	b := bamboo.NewBambooService("username", "password", baseUrl, &requestHandler)
 	b.GetPlans()
-	if requestHandler.RequestUrl != baseUrl + bamboo.ApiUrl + bamboo.PlanEndpoint {
+	if requestHandler.RequestUrl != baseUrl+bamboo.ApiUrl+bamboo.PlanEndpoint {
 		t.Error(
 			"For", "requestHandler.RequestUrl",
-			"expected", baseUrl + bamboo.ApiUrl + bamboo.PlanEndpoint,
+			"expected", baseUrl+bamboo.ApiUrl+bamboo.PlanEndpoint,
 			"got", requestHandler.RequestUrl,
 		)
 	}
 }
 
-func TestGetPlans(t *testing.T) {
+func TestGetPlansParsesResultToStruct(t *testing.T) {
 	requestHandler := MockRequestHandler{
 		BaseUrl: "test.com",
 		ResponseBody: `{
@@ -69,6 +69,19 @@ func TestGetPlans(t *testing.T) {
 			"For", "len(plans.Plans.Plans)",
 			"expected", 3,
 			"got", len(plans.Plans.Plans),
+		)
+	}
+}
+
+func TestGetAllResultsParsesResultToStruct(t *testing.T) {
+	requestHandler := MockRequestHandler{}
+	b := bamboo.NewBambooService("username", "password", "test.com", &requestHandler)
+	latestResults := b.GetBuildResults(25)
+	if len(latestResults.Results.Result) != 10 {
+		t.Error(
+			"For", "len(latestResults.Results.Result)",
+			"expected", 10,
+			"got", len(latestResults.Results.Result),
 		)
 	}
 }
