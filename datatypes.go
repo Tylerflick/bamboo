@@ -217,3 +217,39 @@ type Plans struct {
 		Plans      []Plan `json:"plan"`
 	} `json:"plans"`
 }
+
+type PlanResult struct {
+	Expand string `json:"expand"`
+	Link   struct {
+		Href string `json:"href"`
+		Rel  string `json:"rel"`
+	} `json:"link"`
+	Results struct {
+		Expand     string `json:"expand"`
+		Max_result int    `json:"max-result"`
+		Result     []struct {
+			Key  string `json:"key"`
+			Link struct {
+				Href string `json:"href"`
+				Rel  string `json:"rel"`
+			} `json:"link"`
+			Number int    `json:"number"`
+			State  string `json:"state"`
+		} `json:"result"`
+		Size        int `json:"size"`
+		Start_index int `json:"start-index"`
+	} `json:"results"`
+}
+
+type PlanDetails struct {
+	Key         string `json:"key"`
+	Link        struct {
+		Href string `json:"href"`
+		Rel  string `json:"rel"`
+	} `json:"link"`
+	Name    string `json:"name"`
+	ProjectKey  string `json:"projectKey"`
+	ProjectName string `json:"projectName"`
+	ShortKey    string `json:"shortKey"`
+	ShortName   string `json:"shortName"`
+}

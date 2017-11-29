@@ -1,6 +1,7 @@
 package bamboo
 
 import (
+	"fmt"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -14,6 +15,9 @@ type BambooService struct {
 	BaseUrl        string
 	requestHandler RequestHandler
 }
+
+const plan = "/plan"
+const maxResultsKey = "max-result"
 
 func NewBambooService(userName string, password string, baseUrl string, requestHandler RequestHandler) BambooService {
 	b := BambooService{
@@ -44,6 +48,19 @@ func (b BambooService) GetBuildResults(max int) Results {
 	return jsonData
 }
 
+func (b BambooService) GetPlanResult(id string) PlanResult {
+	endpoint := b.BaseUrl + ApiUrl + "/latest/result/" + id
+	req := b.requestHandler.CreateRequest("GET", endpoint)
+	req.SetBasicAuth(b.Username, b.Password)
+	values := req.URL.Query()
+	values.Add("expand", "results[0:1].result")
+	req.URL.RawQuery = values.Encode()	
+	body := b.requestHandler.ProcessRequest(req)
+	var jsonData PlanResult
+	json.Unmarshal([]byte(body), &jsonData)
+	return jsonData
+}
+
 func (b BambooService) GetProjects() Projects {
 	endpoint := b.BaseUrl + ApiUrl + ProjectEndpoint
 	req := b.requestHandler.CreateRequest("GET", endpoint)
@@ -54,12 +71,28 @@ func (b BambooService) GetProjects() Projects {
 	return jsonData
 }
 
-func (b BambooService) GetPlans() Plans {
-	endpoint := b.BaseUrl + ApiUrl + PlanEndpoint
+func (b BambooService) GetPlans(max int) Plans {
+	endpoint := b.BaseUrl + ApiUrl + "/latest" + plan
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
+	if max > 0 {
+		values := req.URL.Query()
+		values.Add(maxResultsKey, strconv.Itoa(max))
+		req.URL.RawQuery = values.Encode()
+	}	
 	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Plans
+	json.Unmarshal([]byte(body), &jsonData)
+	return jsonData
+}
+
+func (b BambooService) GetPlanDetails(id string) PlanDetails {
+	endpoint := b.BaseUrl + ApiUrl + "/latest" + plan + "/" + id
+	req := b.requestHandler.CreateRequest("GET", endpoint)
+	req.SetBasicAuth(b.Username, b.Password)	
+	body := b.requestHandler.ProcessRequest(req)
+	fmt.Print(body)
+	var jsonData PlanDetails 
 	json.Unmarshal([]byte(body), &jsonData)
 	return jsonData
 }
