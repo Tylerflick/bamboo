@@ -1,5 +1,17 @@
 # bamboo
-An Atlassian Bamboo status client written in Go
+An Atlassian Bamboo REST API client written in Go
 
 ## Status
-In development and not tested
+What's Done (API Calls):
+- All Builds
+- Plan Service 
+- Specific Plan
+
+What's Left:
+- Specific Build Result
+- Chart Service
+- Build Queue Service
+- Comments Service
+- Labels Service
+- Server Information Service
+- Examples
