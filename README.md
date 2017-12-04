@@ -1,4 +1,4 @@
-# bamboo
+# 🎍bamboo🎍
 An Atlassian Bamboo REST API client written in Go
 
 ## Status
