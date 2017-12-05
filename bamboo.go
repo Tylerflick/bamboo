@@ -16,9 +16,6 @@ type BambooService struct {
 	requestHandler RequestHandler
 }
 
-const plan = "/plan"
-const maxResultsKey = "max-result"
-
 func NewBambooService(userName string, password string, baseUrl string, requestHandler RequestHandler) BambooService {
 	b := BambooService{
 		Username: userName,
@@ -72,12 +69,12 @@ func (b BambooService) GetProjects() Projects {
 }
 
 func (b BambooService) GetPlans(max int) Plans {
-	endpoint := b.BaseUrl + ApiUrl + "/latest" + plan
+	endpoint := b.BaseUrl + ApiUrl + PlanEndpoint
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	if max > 0 {
 		values := req.URL.Query()
-		values.Add(maxResultsKey, strconv.Itoa(max))
+		values.Add(MaxResultsKey, strconv.Itoa(max))
 		req.URL.RawQuery = values.Encode()
 	}	
 	body := b.requestHandler.ProcessRequest(req)
@@ -87,7 +84,7 @@ func (b BambooService) GetPlans(max int) Plans {
 }
 
 func (b BambooService) GetPlanDetails(id string) PlanDetails {
-	endpoint := b.BaseUrl + ApiUrl + "/latest" + plan + "/" + id
+	endpoint := b.BaseUrl + ApiUrl + PlanEndpoint + "/" + id
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)	
 	body := b.requestHandler.ProcessRequest(req)
