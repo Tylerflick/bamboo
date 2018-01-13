@@ -1,8 +1,8 @@
 package bamboo
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -31,7 +31,7 @@ func NewBambooService(userName string, password string, baseUrl string, requestH
 }
 
 func (b BambooService) GetBuildResults(max int) Results {
-	endpoint := b.BaseUrl + ApiUrl + LatestResultsEndpoint
+	endpoint := b.BaseUrl + ApiUrl + LatestResults
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	if max > 0 {
 		values := req.URL.Query()
@@ -45,13 +45,13 @@ func (b BambooService) GetBuildResults(max int) Results {
 	return jsonData
 }
 
+// GetPlanResult retrieves the build result for a particular plan
 func (b BambooService) GetPlanResult(id string) PlanResult {
 	endpoint := b.BaseUrl + ApiUrl + "/latest/result/" + id
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	values := req.URL.Query()
-	values.Add("expand", "results[0:1].result")
-	req.URL.RawQuery = values.Encode()	
+	req.URL.RawQuery = values.Encode()
 	body := b.requestHandler.ProcessRequest(req)
 	var jsonData PlanResult
 	json.Unmarshal([]byte(body), &jsonData)
@@ -76,7 +76,7 @@ func (b BambooService) GetPlans(max int) Plans {
 		values := req.URL.Query()
 		values.Add(MaxResultsKey, strconv.Itoa(max))
 		req.URL.RawQuery = values.Encode()
-	}	
+	}
 	body := b.requestHandler.ProcessRequest(req)
 	var jsonData Plans
 	json.Unmarshal([]byte(body), &jsonData)
@@ -86,10 +86,19 @@ func (b BambooService) GetPlans(max int) Plans {
 func (b BambooService) GetPlanDetails(id string) PlanDetails {
 	endpoint := b.BaseUrl + ApiUrl + PlanEndpoint + "/" + id
 	req := b.requestHandler.CreateRequest("GET", endpoint)
-	req.SetBasicAuth(b.Username, b.Password)	
+	req.SetBasicAuth(b.Username, b.Password)
 	body := b.requestHandler.ProcessRequest(req)
-	fmt.Print(body)
-	var jsonData PlanDetails 
+	var jsonData PlanDetails
+	json.Unmarshal([]byte(body), &jsonData)
+	return jsonData
+}
+
+func (b BambooService) GetPlanBranches(buildKey string) PlanBranches {
+	endpoint := b.BaseUrl + ApiUrl + fmt.Sprintf(ListPlanBranchesEndpoint, buildKey)
+	req := b.requestHandler.CreateRequest("GET", endpoint)
+	req.SetBasicAuth(b.Username, b.Password)
+	body := b.requestHandler.ProcessRequest(req)
+	var jsonData PlanBranches
 	json.Unmarshal([]byte(body), &jsonData)
 	return jsonData
 }
@@ -110,7 +119,6 @@ func (b BambooService) ProcessRequest(req *http.Request) string {
 func (b BambooService) getBody(response *http.Response) string {
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
-	// TODO: should this log the error or return it?
 	if err != nil {
 		log.Fatal(err)
 	}
