@@ -1,7 +1,8 @@
 package bamboo
 
-type ServerSettings struct {
-	rootUrl  string
+// Settings encapsulates the necessary credentials and base urls to talk to the Bamboo REST API
+type Settings struct {
+	rootURL  string
 	username string
 	password string
 }

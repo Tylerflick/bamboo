@@ -9,18 +9,20 @@ import (
 	"strconv"
 )
 
-type BambooService struct {
+// Service is a struct which exposes functinality for talking to the Attlasian Bamboo REST API
+type Service struct {
 	Username       string
 	Password       string
-	BaseUrl        string
+	BaseURL        string
 	requestHandler RequestHandler
 }
 
-func NewBambooService(userName string, password string, baseUrl string, requestHandler RequestHandler) BambooService {
-	b := BambooService{
+// New initializes a new service struct
+func New(userName string, password string, baseURL string, requestHandler RequestHandler) Service {
+	b := Service{
 		Username: userName,
 		Password: password,
-		BaseUrl:  baseUrl,
+		BaseURL:  baseURL,
 	}
 	if requestHandler == nil {
 		b.requestHandler = b
@@ -30,8 +32,9 @@ func NewBambooService(userName string, password string, baseUrl string, requestH
 	return b
 }
 
-func (b BambooService) GetBuildResults(max int) Results {
-	endpoint := b.BaseUrl + ApiUrl + LatestResults
+// GetBuildResults retrieves the last n(max) build results
+func (b Service) GetBuildResults(max int) Results {
+	endpoint := b.BaseURL + ApiUrl + LatestResults
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	if max > 0 {
 		values := req.URL.Query()
@@ -46,8 +49,8 @@ func (b BambooService) GetBuildResults(max int) Results {
 }
 
 // GetPlanResult retrieves the build result for a particular plan
-func (b BambooService) GetPlanResult(id string) PlanResult {
-	endpoint := b.BaseUrl + ApiUrl + "/latest/result/" + id
+func (b Service) GetPlanResult(planKey string) PlanResult {
+	endpoint := b.BaseURL + ApiUrl + "/latest/result/" + planKey
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	values := req.URL.Query()
@@ -58,8 +61,9 @@ func (b BambooService) GetPlanResult(id string) PlanResult {
 	return jsonData
 }
 
-func (b BambooService) GetProjects() Projects {
-	endpoint := b.BaseUrl + ApiUrl + ProjectEndpoint
+// GetProjects retrieves all projects
+func (b Service) GetProjects() Projects {
+	endpoint := b.BaseURL + ApiUrl + ProjectEndpoint
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	body := b.requestHandler.ProcessRequest(req)
@@ -68,8 +72,9 @@ func (b BambooService) GetProjects() Projects {
 	return jsonData
 }
 
-func (b BambooService) GetPlans(max int) Plans {
-	endpoint := b.BaseUrl + ApiUrl + PlanEndpoint
+// GetPlans retrieves the last n(max) plans
+func (b Service) GetPlans(max int) Plans {
+	endpoint := b.BaseURL + ApiUrl + PlanEndpoint
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	if max > 0 {
@@ -83,8 +88,9 @@ func (b BambooService) GetPlans(max int) Plans {
 	return jsonData
 }
 
-func (b BambooService) GetPlanDetails(id string) PlanDetails {
-	endpoint := b.BaseUrl + ApiUrl + PlanEndpoint + "/" + id
+// GetPlanDetails retrieves the PlanDetails for an individual plan
+func (b Service) GetPlanDetails(planKey string) PlanDetails {
+	endpoint := b.BaseURL + ApiUrl + PlanEndpoint + "/" + planKey
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	body := b.requestHandler.ProcessRequest(req)
@@ -93,8 +99,9 @@ func (b BambooService) GetPlanDetails(id string) PlanDetails {
 	return jsonData
 }
 
-func (b BambooService) GetPlanBranches(buildKey string) PlanBranches {
-	endpoint := b.BaseUrl + ApiUrl + fmt.Sprintf(ListPlanBranchesEndpoint, buildKey)
+// GetPlanBranches retrieves all child branches of a particular plan
+func (b Service) GetPlanBranches(planKey string) PlanBranches {
+	endpoint := b.BaseURL + ApiUrl + fmt.Sprintf(ListPlanBranchesEndpoint, planKey)
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	body := b.requestHandler.ProcessRequest(req)
@@ -103,20 +110,22 @@ func (b BambooService) GetPlanBranches(buildKey string) PlanBranches {
 	return jsonData
 }
 
-func (b BambooService) CreateRequest(requestType string, url string) *http.Request {
+// CreateRequest builds a json based http request
+func (b Service) CreateRequest(requestType string, url string) *http.Request {
 	req, _ := http.NewRequest(requestType, url, nil)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	return req
 }
 
-func (b BambooService) ProcessRequest(req *http.Request) string {
+// ProcessRequest excecutes a http request and returns the body as a string
+func (b Service) ProcessRequest(req *http.Request) string {
 	client := http.Client{}
 	results, _ := client.Do(req)
 	return b.getBody(results)
 }
 
-func (b BambooService) getBody(response *http.Response) string {
+func (b Service) getBody(response *http.Response) string {
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
