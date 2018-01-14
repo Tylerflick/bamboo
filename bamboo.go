@@ -34,11 +34,11 @@ func New(userName string, password string, baseURL string, requestHandler Reques
 
 // GetBuildResults retrieves the last n(max) build results
 func (b Service) GetBuildResults(max int) Results {
-	endpoint := b.BaseURL + ApiUrl + LatestResults
+	endpoint := b.BaseURL + apiURL + latestResults
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	if max > 0 {
 		values := req.URL.Query()
-		values.Add(MaxResultsKey, strconv.Itoa(max))
+		values.Add(maxResultsKey, strconv.Itoa(max))
 		req.URL.RawQuery = values.Encode()
 	}
 	req.SetBasicAuth(b.Username, b.Password)
@@ -50,7 +50,7 @@ func (b Service) GetBuildResults(max int) Results {
 
 // GetPlanResult retrieves the build result for a particular plan
 func (b Service) GetPlanResult(planKey string) PlanResult {
-	endpoint := b.BaseURL + ApiUrl + "/latest/result/" + planKey
+	endpoint := b.BaseURL + apiURL + latestResults + planKey
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	values := req.URL.Query()
@@ -63,7 +63,7 @@ func (b Service) GetPlanResult(planKey string) PlanResult {
 
 // GetProjects retrieves all projects
 func (b Service) GetProjects() Projects {
-	endpoint := b.BaseURL + ApiUrl + ProjectEndpoint
+	endpoint := b.BaseURL + apiURL + projectEndpoint
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	body := b.requestHandler.ProcessRequest(req)
@@ -74,12 +74,12 @@ func (b Service) GetProjects() Projects {
 
 // GetPlans retrieves the last n(max) plans
 func (b Service) GetPlans(max int) Plans {
-	endpoint := b.BaseURL + ApiUrl + PlanEndpoint
+	endpoint := b.BaseURL + apiURL + planEndpoint
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	if max > 0 {
 		values := req.URL.Query()
-		values.Add(MaxResultsKey, strconv.Itoa(max))
+		values.Add(maxResultsKey, strconv.Itoa(max))
 		req.URL.RawQuery = values.Encode()
 	}
 	body := b.requestHandler.ProcessRequest(req)
@@ -90,7 +90,7 @@ func (b Service) GetPlans(max int) Plans {
 
 // GetPlanDetails retrieves the PlanDetails for an individual plan
 func (b Service) GetPlanDetails(planKey string) PlanDetails {
-	endpoint := b.BaseURL + ApiUrl + PlanEndpoint + "/" + planKey
+	endpoint := b.BaseURL + apiURL + planEndpoint + "/" + planKey
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	body := b.requestHandler.ProcessRequest(req)
@@ -101,7 +101,7 @@ func (b Service) GetPlanDetails(planKey string) PlanDetails {
 
 // GetPlanBranches retrieves all child branches of a particular plan
 func (b Service) GetPlanBranches(planKey string) PlanBranches {
-	endpoint := b.BaseURL + ApiUrl + fmt.Sprintf(ListPlanBranchesEndpoint, planKey)
+	endpoint := b.BaseURL + apiURL + fmt.Sprintf(listPlanBranchesEndpoint, planKey)
 	req := b.requestHandler.CreateRequest("GET", endpoint)
 	req.SetBasicAuth(b.Username, b.Password)
 	body := b.requestHandler.ProcessRequest(req)
